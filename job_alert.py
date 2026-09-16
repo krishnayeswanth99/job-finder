@@ -23,6 +23,7 @@ import time
 import html
 import urllib.request
 import urllib.parse
+import urllib.error
 from datetime import datetime, timezone, timedelta
 
 # ---------------------------------------------------------------- config ---
@@ -238,6 +239,17 @@ def linkedin_jobs(keywords, location):
 
 # ------------------------------------------------------------- telegram ---
 
+# def telegram_send(text):
+#     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+#     payload = urllib.parse.urlencode({
+#         "chat_id": TELEGRAM_CHAT_ID,
+#         "text": text,
+#         "parse_mode": "HTML",
+#         "disable_web_page_preview": "true",
+#     }).encode()
+#     req = urllib.request.Request(url, data=payload, headers=UA)
+#     with urllib.request.urlopen(req, timeout=20) as r:
+#         return json.loads(r.read())
 def telegram_send(text):
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
     payload = urllib.parse.urlencode({
@@ -247,8 +259,14 @@ def telegram_send(text):
         "disable_web_page_preview": "true",
     }).encode()
     req = urllib.request.Request(url, data=payload, headers=UA)
-    with urllib.request.urlopen(req, timeout=20) as r:
-        return json.loads(r.read())
+    try:
+        with urllib.request.urlopen(req, timeout=20) as r:
+            return json.loads(r.read())
+    except urllib.error.HTTPError as e:
+        # Read Telegram's actual error explanation body
+        error_body = e.read().decode("utf-8", "replace")
+        print(f"[telegram_api_error] Status {e.code}: {error_body}")
+        raise e
 
 
 def notify(jobs):
