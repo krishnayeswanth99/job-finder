@@ -1,5 +1,5 @@
 # .github/workflows/job-alerts.yml
-name: job-alerts
+name: job-alerts-v2
 
 on:
   schedule:
