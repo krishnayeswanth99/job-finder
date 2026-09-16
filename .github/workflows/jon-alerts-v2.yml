@@ -32,4 +32,8 @@ jobs:
           git config user.email "job-bot@users.noreply.github.com"
           git add seen_jobs.json companies.json
           git commit -m "state: $(date -u +%FT%TZ)" || echo "no state change"
+          # Rebase onto any remote commits pushed since checkout (avoids
+          # non-fast-forward rejections when runs overlap or the repo
+          # was edited on github.com between runs)
+          git pull --rebase origin ${{ github.ref_name }}
           git push
