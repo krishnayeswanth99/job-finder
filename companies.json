@@ -1,0 +1,47 @@
+{
+ "priority_companies": [
+  "openai",
+  "anthropic",
+  "databricks",
+  "stripe",
+  "palantir",
+  "cohere",
+  "perplexity",
+  "anyscale",
+  "scale ai",
+  "mercor"
+ ],
+ "known_companies": [],
+ "known_boards": {
+  "openai": "greenhouse",
+  "anthropic": "greenhouse",
+  "databricks": "greenhouse",
+  "stripe": "greenhouse",
+  "palantir": "greenhouse",
+  "airbnb": "greenhouse",
+  "doordash": "greenhouse",
+  "robinhood": "greenhouse",
+  "scaleai": "greenhouse",
+  "cohere": "greenhouse",
+  "perplexityai": "greenhouse",
+  "anyscale": "greenhouse",
+  "instacart": "greenhouse",
+  "okta": "greenhouse",
+  "mongodb": "greenhouse",
+  "duolingo": "lever",
+  "anduril": "lever",
+  "hopper": "lever",
+  "spotify": "lever",
+  "netlify": "lever",
+  "elevenlabs": "ashby",
+  "mercor": "ashby",
+  "clay": "ashby",
+  "cursor": "ashby"
+ },
+ "known_ashby_orgs": [
+  "elevenlabs",
+  "mercor",
+  "clay",
+  "cursor"
+ ]
+}
