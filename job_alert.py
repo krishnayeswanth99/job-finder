@@ -93,11 +93,46 @@ def location_matches(loc):
     return any(k in l for k in LOCATION_KEYWORDS)
 
 
-def fresh(ts_seconds):
-    if not ts_seconds or MAX_AGE_HOURS is None:
+def fresh(timestamp):
+    """
+    Accept Unix timestamps, ISO-8601 strings, or missing timestamps.
+    Returns True if the job is within MAX_AGE_HOURS.
+    """
+    if not timestamp or MAX_AGE_HOURS is None:
         return True
+
     cutoff = datetime.now(timezone.utc) - timedelta(hours=MAX_AGE_HOURS)
-    return datetime.fromtimestamp(ts_seconds, tz=timezone.utc) > cutoff
+
+    try:
+        # Unix timestamp
+        if isinstance(timestamp, (int, float)):
+            dt = datetime.fromtimestamp(timestamp, tz=timezone.utc)
+
+        # ISO-8601 timestamp
+        elif isinstance(timestamp, str):
+            value = timestamp.strip()
+
+            # Greenhouse commonly returns:
+            # 2026-09-16T12:34:56-0400
+            # or 2026-09-16T16:34:56Z
+            if value.endswith("Z"):
+                value = value[:-1] + "+00:00"
+
+            dt = datetime.fromisoformat(value)
+
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            else:
+                dt = dt.astimezone(timezone.utc)
+
+        else:
+            return True
+
+        return dt > cutoff
+
+    except (ValueError, TypeError, OverflowError) as e:
+        print(f"[timestamp] Could not parse {timestamp!r}: {e}")
+        return True
 
 
 def collect(jobs):
