@@ -20,6 +20,7 @@ import json
 import os
 import re
 import time
+import html
 import urllib.request
 import urllib.parse
 from datetime import datetime, timezone, timedelta
@@ -213,13 +214,13 @@ def linkedin_jobs(keywords, location):
     url = (f"https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings"
            f"/search?keywords={q}&location={loc}&start=0")
     try:
-        html = fetch(url).decode("utf-8", "replace")
+        html_content = fetch(url).decode("utf-8", "replace") # <-- Renamed from 'html'
     except Exception as e:
         print(f"[linkedin] {keywords}: {e}")
         return
-    ids = re.findall(r'/jobs/view/(\d+)', html)
-    titles = re.findall(r'base-search-card__title[^>]*>\s*(.+?)\s*<', html, re.S)
-    comps = re.findall(r'base-search-card__subtitle[^>]*>\s*(.+?)\s*<', html, re.S)
+    ids = re.findall(r'/jobs/view/(\d+)', html_content)          # <-- Updated here
+    titles = re.findall(r'base-search-card__title[^>]*>\s*(.+?)\s*<', html_content, re.S) # <-- Updated here
+    comps = re.findall(r'base-search-card__subtitle[^>]*>\s*(.+?)\s*<', html_content, re.S) # <-- Updated here
     seen = set()
     for i, jid in enumerate(ids):
         if jid in seen or i >= len(titles):
@@ -252,11 +253,16 @@ def telegram_send(text):
 
 def notify(jobs):
     for j in jobs:
-        msg = (f"🚨 <b>{j['title']}</b>\n"
-               f"🏢 {j['company']}\n"
-               f"📍 {j.get('location') or 'N/A'}\n"
+        safe_title = html.escape(j['title'])
+        safe_company = html.escape(str(j['company']))
+        safe_loc = html.escape(str(j.get('location') or 'N/A'))
+        safe_src = html.escape(str(j['src']))
+
+        msg = (f"🚨 <b>{safe_title}</b>\n"
+               f"🏢 {safe_company}\n"
+               f"📍 {safe_loc}\n"
                f"🔗 {j['url']}\n"
-               f"<i>{j['src']}</i>")
+               f"<i>{safe_src}</i>")
         try:
             telegram_send(msg)
         except Exception as e:
